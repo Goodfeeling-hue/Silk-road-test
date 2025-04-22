@@ -1,2 +1,117 @@
 # Silk-road-test
-Testinf
+Testing
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shadow of the Steppe</title>
+  <style>
+    canvas {
+      background-color: #f4e2d8;
+      display: block;
+      margin: 0 auto;
+    }
+    body {
+      text-align: center;
+      font-family: sans-serif;
+      background: #2e1e0f;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Shadow of the Steppe</h1>
+  <p>Use arrow keys to move. Avoid the guards and reach the camel!</p>
+  <canvas id="game" width="320" height="320"></canvas>  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const tileSize = 32;
+    const player = { x: 1, y: 1 };
+    const camel = { x: 9, y: 9 };
+    const guards = [
+      { x: 5, y: 5, dir: 1 },
+      { x: 3, y: 8, dir: -1 }
+    ];
+
+    const map = [
+      [1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,0,0,0,1],
+      [1,0,1,1,1,0,1,1,0,1],
+      [1,0,0,0,1,0,1,0,0,1],
+      [1,0,1,0,1,0,1,0,1,1],
+      [1,0,1,0,0,0,1,0,0,1],
+      [1,0,1,1,1,1,1,1,0,1],
+      [1,0,0,0,0,0,0,0,0,1],
+      [1,1,1,1,1,1,0,1,1,1],
+      [1,0,0,0,0,0,0,0,0,1],
+      [1,1,1,1,1,1,1,1,1,1]
+    ];
+
+    function drawTile(x, y, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+    }
+
+    function draw() {
+      for (let y = 0; y < map.length; y++) {
+        for (let x = 0; x < map[y].length; x++) {
+          drawTile(x, y, map[y][x] === 1 ? "#654321" : "#deb887");
+        }
+      }
+      drawTile(player.x, player.y, "blue");
+      drawTile(camel.x, camel.y, "orange");
+      guards.forEach(g => drawTile(g.x, g.y, "red"));
+    }
+
+    function canMove(x, y) {
+      return map[y] && map[y][x] === 0;
+    }
+
+    function movePlayer(dx, dy) {
+      const nx = player.x + dx;
+      const ny = player.y + dy;
+      if (canMove(nx, ny)) {
+        player.x = nx;
+        player.y = ny;
+      }
+      checkWinOrLose();
+    }
+
+    function moveGuards() {
+      guards.forEach(g => {
+        const newY = g.y + g.dir;
+        if (canMove(g.x, newY)) {
+          g.y = newY;
+        } else {
+          g.dir *= -1;
+        }
+      });
+    }
+
+    function checkWinOrLose() {
+      for (let g of guards) {
+        if (g.x === player.x && g.y === player.y) {
+          alert("Caught by guard! Game over.");
+          window.location.reload();
+        }
+      }
+      if (player.x === camel.x && player.y === camel.y) {
+        alert("You made it to the caravan! Victory!");
+        window.location.reload();
+      }
+    }
+
+    document.addEventListener("keydown", e => {
+      switch(e.key) {
+        case "ArrowUp": movePlayer(0, -1); break;
+        case "ArrowDown": movePlayer(0, 1); break;
+        case "ArrowLeft": movePlayer(-1, 0); break;
+        case "ArrowRight": movePlayer(1, 0); break;
+      }
+      moveGuards();
+      draw();
+    });
+
+    draw();
+  </script></body>
+</html>
